@@ -92,39 +92,50 @@ menu = st.sidebar.radio(
 
 # ---------------- Home Page ----------------
 if "Home" in menu:
-  
+    st.subheader("🏠 Dashboard")
 
     # Layout: Transactions & Mining
     tx_col, miner_col = st.columns(2)
 
     # --- Transactions ---
     with tx_col:
-        st.markdown("###  New Transaction")
+        st.markdown("### 💳 New Transaction")
         sender = st.text_input("Sender", key="tx_sender")
         receiver = st.text_input("Receiver", key="tx_receiver")
         amount = st.number_input("Amount", min_value=0.0, step=0.01, key="tx_amount")
         if st.button("Submit Transaction"):
-            success, msg = blockchain.add_transaction(sender, receiver, amount)
-            if success:
-                st.success(msg)
+            # Validation
+            if not sender.strip():
+                st.error("Sender cannot be empty.")
+            elif not receiver.strip():
+                st.error("Receiver cannot be empty.")
+            elif sender == receiver:
+                st.error("Sender and Receiver cannot be the same.")
             else:
-                st.error(msg)
+                success, msg = blockchain.add_transaction(sender, receiver, amount)
+                if success:
+                    st.success(msg)
+                else:
+                    st.error(msg)
 
     # --- Mining ---
     with miner_col:
-        st.markdown("### Mine Block")
+        st.markdown("### ⛏️ Mine Block")
         miner_name = st.text_input("Miner Name", value="Bank Network", key="miner_name")
         if st.button("Start Mining"):
-            progress_text = f"Mining block by {miner_name}..."
-            progress_bar = st.progress(0, text=progress_text)
-            for percent_complete in range(101):
-                time.sleep(0.02)
-                progress_bar.progress(percent_complete, text=progress_text)
-            block, msg = blockchain.mine_block(miner_name)
-            st.success(msg)
+            if not miner_name.strip():
+                st.error("Miner name cannot be empty.")
+            else:
+                progress_text = f"Mining block by {miner_name}..."
+                progress_bar = st.progress(0, text=progress_text)
+                for percent_complete in range(101):
+                    time.sleep(0.02)
+                    progress_bar.progress(percent_complete, text=progress_text)
+                block, msg = blockchain.mine_block(miner_name)
+                st.success(msg)
 
     # Account Balances Table
-    st.markdown("###  Account Balances")
+    st.markdown("### 👥 Account Balances")
     balances_df = pd.DataFrame(
         blockchain.balances.items(), columns=["User", "Balance"]
     ).sort_values(by="Balance", ascending=False)
@@ -132,7 +143,7 @@ if "Home" in menu:
 
 # ---------------- Pending Transactions Page ----------------
 elif "Pending Transactions" in menu:
-    st.subheader("Pending Transactions")
+    st.subheader("📄 Pending Transactions")
     if blockchain.pending_transactions:
         for idx, tx in enumerate(blockchain.pending_transactions, start=1):
             with st.expander(f"Transaction #{idx}"):
@@ -144,7 +155,7 @@ elif "Pending Transactions" in menu:
 
 # ---------------- Blockchain Overview Page ----------------
 elif "Blockchain Overview" in menu:
-    st.subheader(" Blockchain Overview")
+    st.subheader("📦 Blockchain Overview")
     for block in blockchain.chain:
         with st.expander(f"Block #{block['index']} - {len(block['transactions'])} tx"):
             st.write(f"**Timestamp:** {block['timestamp']}")
