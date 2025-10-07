@@ -55,9 +55,9 @@ class Blockchain:
         return block, f"Block mined by {miner_name}, reward: {reward_amount} coins"
 
 # ---------------- Streamlit Setup ----------------
-st.set_page_config(page_title="Bank Blockchain Simulator", layout="wide")
+st.set_page_config(page_title="CoinFlow - Bank Blockchain Simulator", layout="wide")
 
-# ---------------- Custom Theme CSS ----------------
+# ---------------- Custom CoinFlow Theme CSS ----------------
 st.markdown("""
 <style>
 /* Background & font */
@@ -75,6 +75,7 @@ h1, h2, h3 {
 /* Sidebar */
 .stSidebar .css-1d391kg {
     background-color: #1e293b;
+    color: #e2e8f0;
 }
 
 /* Buttons */
@@ -115,10 +116,15 @@ if "blockchain" not in st.session_state:
     st.session_state.blockchain = Blockchain()
 blockchain = st.session_state.blockchain
 
+# ---------------- CoinFlow Header ----------------
+st.markdown("<h1 style='text-align:center;'>💸 CoinFlow</h1>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align:center; color:#facc15;'>Bank Blockchain Simulator</h4>", unsafe_allow_html=True)
+st.markdown("---")
+
 # ---------------- Sidebar Navigation ----------------
-st.sidebar.title("🏦 Bank Simulator Menu")
+st.sidebar.title("💸 CoinFlow Menu")
 menu = st.sidebar.radio(
-    "Go to:",
+    "Navigate:",
     [
         "Home",
         f"Pending Transactions ({len(blockchain.pending_transactions)})",
@@ -128,13 +134,13 @@ menu = st.sidebar.radio(
 
 # ---------------- Home Page ----------------
 if "Home" in menu:
-    st.title("🏦 Bank Blockchain Simulator")
+    st.subheader("🏠 Dashboard")
 
     # Layout: Transactions & Mining
     tx_col, miner_col = st.columns(2)
 
     with tx_col:
-        st.subheader("💳 New Transaction")
+        st.markdown("### 💳 New Transaction")
         sender = st.text_input("Sender", key="tx_sender")
         receiver = st.text_input("Receiver", key="tx_receiver")
         amount = st.number_input("Amount", min_value=0.0, step=0.01, key="tx_amount")
@@ -143,7 +149,7 @@ if "Home" in menu:
             st.success(msg) if success else st.error(msg)
 
     with miner_col:
-        st.subheader("⛏️ Mine Block")
+        st.markdown("### ⛏️ Mine Block")
         miner_name = st.text_input("Miner Name", value="Bank Network", key="miner_name")
         if st.button("Start Mining"):
             progress_text = f"Mining block by {miner_name}..."
@@ -155,7 +161,7 @@ if "Home" in menu:
             st.success(msg)
 
     # Account Balances Table
-    st.subheader("👥 Account Balances")
+    st.markdown("### 👥 Account Balances")
     balances_df = pd.DataFrame(
         blockchain.balances.items(), columns=["User", "Balance"]
     ).sort_values(by="Balance", ascending=False)
@@ -163,7 +169,7 @@ if "Home" in menu:
 
 # ---------------- Pending Transactions Page ----------------
 elif "Pending Transactions" in menu:
-    st.title("📄 Pending Transactions")
+    st.subheader("📄 Pending Transactions")
     if blockchain.pending_transactions:
         for idx, tx in enumerate(blockchain.pending_transactions, start=1):
             with st.expander(f"Transaction #{idx}"):
@@ -175,7 +181,7 @@ elif "Pending Transactions" in menu:
 
 # ---------------- Blockchain Overview Page ----------------
 elif "Blockchain Overview" in menu:
-    st.title("📦 Blockchain Overview")
+    st.subheader("📦 Blockchain Overview")
     for block in blockchain.chain:
         with st.expander(f"Block #{block['index']} - {len(block['transactions'])} tx"):
             st.write(f"**Timestamp:** {block['timestamp']}")
