@@ -134,13 +134,13 @@ menu = st.sidebar.radio(
 
 # ---------------- Home Page ----------------
 if "Home" in menu:
-    st.subheader("🏠 Dashboard")
+   
 
     # Layout: Transactions & Mining
     tx_col, miner_col = st.columns(2)
 
     with tx_col:
-        st.markdown("### 💳 New Transaction")
+        st.markdown("###  New Transaction")
         sender = st.text_input("Sender", key="tx_sender")
         receiver = st.text_input("Receiver", key="tx_receiver")
         amount = st.number_input("Amount", min_value=0.0, step=0.01, key="tx_amount")
@@ -149,7 +149,7 @@ if "Home" in menu:
             st.success(msg) if success else st.error(msg)
 
     with miner_col:
-        st.markdown("### ⛏️ Mine Block")
+        st.markdown("### Mine Block")
         miner_name = st.text_input("Miner Name", value="Bank Network", key="miner_name")
         if st.button("Start Mining"):
             progress_text = f"Mining block by {miner_name}..."
@@ -169,7 +169,7 @@ if "Home" in menu:
 
 # ---------------- Pending Transactions Page ----------------
 elif "Pending Transactions" in menu:
-    st.subheader("📄 Pending Transactions")
+    st.subheader("Pending Transactions")
     if blockchain.pending_transactions:
         for idx, tx in enumerate(blockchain.pending_transactions, start=1):
             with st.expander(f"Transaction #{idx}"):
@@ -181,7 +181,7 @@ elif "Pending Transactions" in menu:
 
 # ---------------- Blockchain Overview Page ----------------
 elif "Blockchain Overview" in menu:
-    st.subheader("📦 Blockchain Overview")
+    st.subheader("Blockchain Overview")
     for block in blockchain.chain:
         with st.expander(f"Block #{block['index']} - {len(block['transactions'])} tx"):
             st.write(f"**Timestamp:** {block['timestamp']}")
@@ -191,3 +191,4 @@ elif "Blockchain Overview" in menu:
                     st.write(f"- {tx['sender']} → {tx['receiver']}: {tx['amount']} coins")
             else:
                 st.write("No transactions in this block.")
+
