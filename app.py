@@ -119,7 +119,7 @@ if "Home" in menu:
 
     # --- Mining ---
     with miner_col:
-        st.markdown("### ⛏️ Mine Block")
+        st.markdown("### Mine Block")
         miner_name = st.text_input("Miner Name", value="Bank Network", key="miner_name")
         if st.button("Start Mining"):
             if not miner_name.strip():
@@ -164,4 +164,5 @@ elif "Blockchain Overview" in menu:
                     st.write(f"- {tx['sender']} → {tx['receiver']}: {tx['amount']} coins")
             else:
                 st.write("No transactions in this block.")
+
 
