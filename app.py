@@ -60,54 +60,13 @@ st.set_page_config(page_title="CoinFlow - Bank Blockchain Simulator", layout="wi
 # ---------------- Custom CoinFlow Theme CSS ----------------
 st.markdown("""
 <style>
-/* Background & font */
-body {
-    background-color: #0f172a;
-    color: #e2e8f0;
-    font-family: 'Segoe UI', sans-serif;
-}
-
-/* Headers */
-h1, h2, h3 {
-    color: #facc15;
-}
-
-/* Sidebar */
-.stSidebar .css-1d391kg {
-    background-color: #1e293b;
-    color: #e2e8f0;
-}
-
-/* Buttons */
-.stButton>button {
-    background-color: #facc15;
-    color: #0f172a;
-    font-weight: bold;
-    border-radius: 8px;
-    padding: 0.5em 1em;
-}
-
-/* Inputs */
-.stTextInput>div>div>input, 
-.stNumberInput>div>div>input {
-    background-color: #1e293b;
-    color: #e2e8f0;
-    border-radius: 5px;
-    padding: 0.5em;
-}
-
-/* Expanders */
-.stExpanderHeader {
-    background-color: #1e293b !important;
-    color: #facc15 !important;
-    border-radius: 8px;
-}
-
-/* Dataframe */
-div.stDataFrame>div>div>div>div {
-    background-color: #1e293b;
-    color: #e2e8f0;
-}
+body {background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif;}
+h1, h2, h3 {color: #facc15;}
+.stSidebar .css-1d391kg {background-color: #1e293b; color: #e2e8f0;}
+.stButton>button {background-color: #facc15; color: #0f172a; font-weight: bold; border-radius: 8px; padding: 0.5em 1em;}
+.stTextInput>div>div>input, .stNumberInput>div>div>input {background-color: #1e293b; color: #e2e8f0; border-radius: 5px; padding: 0.5em;}
+.stExpanderHeader {background-color: #1e293b !important; color: #facc15 !important; border-radius: 8px;}
+div.stDataFrame>div>div>div>div {background-color: #1e293b; color: #e2e8f0;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -118,11 +77,10 @@ blockchain = st.session_state.blockchain
 
 # ---------------- CoinFlow Header ----------------
 st.markdown("<h1 style='text-align:center;'>💸 CoinFlow</h1>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align:center; color:#facc15;'>Bank Blockchain Simulator</h4>", unsafe_allow_html=True)
 st.markdown("---")
 
 # ---------------- Sidebar Navigation ----------------
-st.sidebar.title("💸 CoinFlow Menu")
+st.sidebar.title("Menu")
 menu = st.sidebar.radio(
     "Navigate:",
     [
@@ -134,11 +92,12 @@ menu = st.sidebar.radio(
 
 # ---------------- Home Page ----------------
 if "Home" in menu:
-   
+  
 
     # Layout: Transactions & Mining
     tx_col, miner_col = st.columns(2)
 
+    # --- Transactions ---
     with tx_col:
         st.markdown("###  New Transaction")
         sender = st.text_input("Sender", key="tx_sender")
@@ -146,8 +105,12 @@ if "Home" in menu:
         amount = st.number_input("Amount", min_value=0.0, step=0.01, key="tx_amount")
         if st.button("Submit Transaction"):
             success, msg = blockchain.add_transaction(sender, receiver, amount)
-            st.success(msg) if success else st.error(msg)
+            if success:
+                st.success(msg)
+            else:
+                st.error(msg)
 
+    # --- Mining ---
     with miner_col:
         st.markdown("### Mine Block")
         miner_name = st.text_input("Miner Name", value="Bank Network", key="miner_name")
@@ -161,7 +124,7 @@ if "Home" in menu:
             st.success(msg)
 
     # Account Balances Table
-    st.markdown("### 👥 Account Balances")
+    st.markdown("###  Account Balances")
     balances_df = pd.DataFrame(
         blockchain.balances.items(), columns=["User", "Balance"]
     ).sort_values(by="Balance", ascending=False)
@@ -181,7 +144,7 @@ elif "Pending Transactions" in menu:
 
 # ---------------- Blockchain Overview Page ----------------
 elif "Blockchain Overview" in menu:
-    st.subheader("Blockchain Overview")
+    st.subheader(" Blockchain Overview")
     for block in blockchain.chain:
         with st.expander(f"Block #{block['index']} - {len(block['transactions'])} tx"):
             st.write(f"**Timestamp:** {block['timestamp']}")
@@ -191,4 +154,3 @@ elif "Blockchain Overview" in menu:
                     st.write(f"- {tx['sender']} → {tx['receiver']}: {tx['amount']} coins")
             else:
                 st.write("No transactions in this block.")
-
