@@ -57,13 +57,66 @@ class Blockchain:
 # ---------------- Streamlit Setup ----------------
 st.set_page_config(page_title="Bank Blockchain Simulator", layout="wide")
 
+# ---------------- Custom Theme CSS ----------------
+st.markdown("""
+<style>
+/* Background & font */
+body {
+    background-color: #0f172a;
+    color: #e2e8f0;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Headers */
+h1, h2, h3 {
+    color: #facc15;
+}
+
+/* Sidebar */
+.stSidebar .css-1d391kg {
+    background-color: #1e293b;
+}
+
+/* Buttons */
+.stButton>button {
+    background-color: #facc15;
+    color: #0f172a;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 0.5em 1em;
+}
+
+/* Inputs */
+.stTextInput>div>div>input, 
+.stNumberInput>div>div>input {
+    background-color: #1e293b;
+    color: #e2e8f0;
+    border-radius: 5px;
+    padding: 0.5em;
+}
+
+/* Expanders */
+.stExpanderHeader {
+    background-color: #1e293b !important;
+    color: #facc15 !important;
+    border-radius: 8px;
+}
+
+/* Dataframe */
+div.stDataFrame>div>div>div>div {
+    background-color: #1e293b;
+    color: #e2e8f0;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # ---------------- Initialize Blockchain ----------------
 if "blockchain" not in st.session_state:
     st.session_state.blockchain = Blockchain()
 blockchain = st.session_state.blockchain
 
 # ---------------- Sidebar Navigation ----------------
-st.sidebar.title("Navigation")
+st.sidebar.title("🏦 Bank Simulator Menu")
 menu = st.sidebar.radio(
     "Go to:",
     [
