@@ -1,6 +1,7 @@
 import streamlit as st
 from datetime import datetime
 import time
+import pandas as pd
 
 # ---------------- Blockchain Class ----------------
 class Blockchain:
@@ -61,20 +62,26 @@ if "blockchain" not in st.session_state:
     st.session_state.blockchain = Blockchain()
 blockchain = st.session_state.blockchain
 
-# ---------------- Header ----------------
-st.title("🏦 Bank Blockchain Simulator")
-st.markdown("---")
-
 # ---------------- Sidebar Navigation ----------------
-menu = st.sidebar.selectbox("Navigate", ["Home", "Pending Transactions", "Blockchain Overview"])
+st.sidebar.title("Navigation")
+menu = st.sidebar.radio(
+    "Go to:",
+    [
+        "Home",
+        f"Pending Transactions ({len(blockchain.pending_transactions)})",
+        f"Blockchain Overview ({len(blockchain.chain)} blocks)"
+    ]
+)
 
-# ---------- Home: Transactions & Mining ----------
-if menu == "Home":
+# ---------------- Home Page ----------------
+if "Home" in menu:
+    st.title("🏦 Bank Blockchain Simulator")
+
+    # Layout: Transactions & Mining
     tx_col, miner_col = st.columns(2)
 
-    # Transactions
     with tx_col:
-        st.header("💳 New Transaction")
+        st.subheader("💳 New Transaction")
         sender = st.text_input("Sender", key="tx_sender")
         receiver = st.text_input("Receiver", key="tx_receiver")
         amount = st.number_input("Amount", min_value=0.0, step=0.01, key="tx_amount")
@@ -82,44 +89,46 @@ if menu == "Home":
             success, msg = blockchain.add_transaction(sender, receiver, amount)
             st.success(msg) if success else st.error(msg)
 
-    # Mining
     with miner_col:
-        st.header("⛏️ Mine Block")
+        st.subheader("⛏️ Mine Block")
         miner_name = st.text_input("Miner Name", value="Bank Network", key="miner_name")
         if st.button("Start Mining"):
             progress_text = f"Mining block by {miner_name}..."
             progress_bar = st.progress(0, text=progress_text)
             for percent_complete in range(101):
-                time.sleep(0.03)
+                time.sleep(0.02)
                 progress_bar.progress(percent_complete, text=progress_text)
             block, msg = blockchain.mine_block(miner_name)
             st.success(msg)
 
-    # Account Balances
-    st.header("👥 Account Balances")
-    for user, bal in blockchain.balances.items():
-        st.write(f"**{user}**: {bal:.2f} coins")
+    # Account Balances Table
+    st.subheader("👥 Account Balances")
+    balances_df = pd.DataFrame(
+        blockchain.balances.items(), columns=["User", "Balance"]
+    ).sort_values(by="Balance", ascending=False)
+    st.dataframe(balances_df, use_container_width=True)
 
-# ---------- Pending Transactions ----------
-elif menu == "Pending Transactions":
-    st.header("📄 Pending Transactions")
+# ---------------- Pending Transactions Page ----------------
+elif "Pending Transactions" in menu:
+    st.title("📄 Pending Transactions")
     if blockchain.pending_transactions:
-        for tx in blockchain.pending_transactions:
-            st.write(f"{tx['sender']} → {tx['receiver']} : {tx['amount']} coins")
+        for idx, tx in enumerate(blockchain.pending_transactions, start=1):
+            with st.expander(f"Transaction #{idx}"):
+                st.write(f"**Sender:** {tx['sender']}")
+                st.write(f"**Receiver:** {tx['receiver']}")
+                st.write(f"**Amount:** {tx['amount']} coins")
     else:
-        st.write("No pending transactions")
+        st.info("No pending transactions.")
 
-# ---------- Blockchain Overview ----------
-elif menu == "Blockchain Overview":
-    st.header("📦 Blockchain Overview")
+# ---------------- Blockchain Overview Page ----------------
+elif "Blockchain Overview" in menu:
+    st.title("📦 Blockchain Overview")
     for block in blockchain.chain:
-        st.markdown(f"**Block #{block['index']}**")
-        st.write(f"Timestamp: {block['timestamp']}")
-        st.write(f"Previous Hash: {block['previous_hash']}")
-        if block['transactions']:
-            st.write("Transactions:")
-            for tx in block['transactions']:
-                st.write(f"- {tx['sender']} → {tx['receiver']} : {tx['amount']} coins")
-        else:
-            st.write("No transactions")
-        st.markdown("---")
+        with st.expander(f"Block #{block['index']} - {len(block['transactions'])} tx"):
+            st.write(f"**Timestamp:** {block['timestamp']}")
+            st.write(f"**Previous Hash:** {block['previous_hash']}")
+            if block['transactions']:
+                for tx in block['transactions']:
+                    st.write(f"- {tx['sender']} → {tx['receiver']}: {tx['amount']} coins")
+            else:
+                st.write("No transactions in this block.")
